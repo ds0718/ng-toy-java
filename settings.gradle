@@ -1,0 +1,5 @@
+rootProject.name = 'ng-toy'
+
+include 'common-core'
+include 'common-service'
+include 'upbit-server'

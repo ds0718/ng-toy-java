@@ -1,0 +1,100 @@
+buildscript {
+	ext {
+		springBootVersion = '2.6.0'
+	}
+	repositories {
+		mavenCentral()
+		maven {
+			url "https://plugins.gradle.org/m2/"
+			uri "https://jitpack.io"
+		} // plugin 저장소
+	}
+	dependencies {
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+		classpath "io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE"
+		classpath "gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:1.0.10"
+	}
+}
+
+plugins {
+//	id 'org.springframework.boot' version '${springBootVersion}'
+//	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+//	id 'java'
+}
+
+/* 전체 프로젝트 내 전체 모듈 공통설정 */
+allprojects {
+	// root 프로젝트까지 설정이 필요한 경우 사용
+}
+subprojects {
+	group = 'com.ehdtjr.toy'
+//	version = '0.0.1-SNAPSHOT'
+
+	apply plugin: "java"
+	apply plugin: "org.springframework.boot"
+	apply plugin: "io.spring.dependency-management"
+	apply plugin: "com.ewerk.gradle.plugins.querydsl"
+	
+	repositories {
+		mavenCentral()
+	}
+	
+	sourceCompatibility = '1.8'
+	targetCompatibility = '1.8'
+	
+	compileJava.options.encoding = 'UTF-8'
+	javadoc {
+		options.charSet = 'UTF-8'
+	}
+	
+	// 멀티모듈에서 공통으로 사용될 의존성
+	/*dependencies {
+		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+		implementation 'org.springframework.boot:spring-boot-starter-web'
+		developmentOnly 'org.springframework.boot:spring-boot-devtools'
+		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	}*/
+	
+	// sub-project 등록시 디렉토리가 존재하지 않으면 자동생성
+	task initSourceFolders {
+		sourceSets*.java.srcDirs*.each {
+			if (!it.exists()) {
+				it.mkdirs()
+			}
+		}
+		sourceSets*.resources.srcDirs*.each {
+			if (!it.exists()) {
+				it.mkdirs()
+			}
+		}
+	}
+}
+/*test {
+	useJUnitPlatform()
+}*/
+
+
+/* 모듈별 개별설정 */
+project(':common-core') {
+	bootJar { enabled = false }
+	jar { enabled = true }
+}
+
+project(':common-service') {
+	bootJar { enabled = false }
+	jar { enabled = true }
+
+	dependencies {
+		compile project(path: ':common-core', configuration: 'default')
+	}
+}
+
+project(':upbit-server') {
+	bootJar { enabled = false }
+	jar { enabled = true }
+
+	dependencies {
+		implementation project(path: ':common-service', configuration: 'default')
+		compile project(path: ':common-core', configuration: 'default')
+	}
+}

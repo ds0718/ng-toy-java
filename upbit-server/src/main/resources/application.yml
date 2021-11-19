@@ -1,0 +1,63 @@
+spring:
+   profiles:
+      active: local
+      
+   jpa:
+      open-in-view: false
+      #show-sql: true
+      hibernate:
+         ddl-auto: none
+         naming:
+            physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+         use-new-id-generator-mappings: false
+      properties:
+         hibernate:
+            format_sql: true
+            #show_sql: true
+            #use_sql_comments: true
+            enable_lazy_load_no_trans: true
+            globally_quoted_identifiers: true
+            #globally_quoted_identifiers_skip_column_definitions: true
+
+   task:
+      scheduling:
+         pool:
+            size: 3 # add/change/send schedule
+         thread-name-prefix: schdl-pool-
+         
+#spring:
+   #output:
+   #ansi:
+      #enabled: DETECT
+
+server:
+   port: 2848
+   shutdown: graceful
+   tomcat:
+      connection-timeout: 30000
+      max-threads: 100
+      min-spare-threads: 50
+      accept-count: 50
+      uri-encoding: UTF-8
+   
+logging:
+   file:
+      #path: C:\temp\logs
+      #name: upbit.log
+      name: C:\temp\logs\upbit.log
+   # rolling is default setup of logback
+   #pattern:
+      #rolling-file-name: ${LOG_FILE}.%d{yyyy-MM-dd}
+      # %line and %method are speed issue 
+      #console: "%clr(%d){yellow} %clr(%-5level) ${PID} --- [%thread] %clr(%-40.40logger{39}){cyan}(%line) : %msg%n%throwable"
+      #file: "%d %-5level [%thread] %logger : %msg%n" 
+   level:
+      com.ehdtjr.toy: debug
+      org.springframework.boot.autoconfigure: info #disable CONDITIONS EVALUATION REPORT
+      org.hibernate.SQL: debug
+      org.hibernate.type.descriptor.sql.BasicBinder: trace
+   logback:
+      rollingpolicy:
+         max-history: 180 #The number of days to keep log archives (defaults to 7)
+
+      
