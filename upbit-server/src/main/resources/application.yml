@@ -39,6 +39,25 @@ server:
       min-spare-threads: 50
       accept-count: 50
       uri-encoding: UTF-8
+
+ehdtjr:
+   app:
+      name: upbit-server
+      id: 0
+   http-client:
+      conn-timeout: 5000
+      read-timeout: 5000
+      pool-size: 50
+      route-size: 20
+   task:
+      initial-delay-schedule: 10000
+      do-trade-schedule: 5000 # fixed delay(ms)
+   trade:
+      access-key: ${ACCESS_KEY}
+      secret-key: ${SECRET_KEY}
+      market: KRW-MVL
+      ratio: 5   # +-5%
+      base-price: 20    # KRW
    
 logging:
    file:
@@ -59,5 +78,27 @@ logging:
    logback:
       rollingpolicy:
          max-history: 180 #The number of days to keep log archives (defaults to 7)
+
+
+upbit:
+   host-v1: https://api.upbit.com/v1
+   url:
+      #
+      # EXCHANGE API
+      # 자산
+      get-accounts: /accounts   # 전체 계좌 조회
+      # 주문
+      get-orders-chance: /orders/chance   # 주문 가능 정보
+      get-order: /order   # 개별 주문 조회
+      get-orders: /orders   # 주문 리스트 조회
+      delete-orders: /order   # 주문 취소 접수
+      post-orders: /orders   # 주문하기
+      # 출금
+      # 입금
+      # 서비스 정보
+      
+      #
+      # QUOTATION API
+      get-ticker: /ticker   # 현재가 정보
 
       
