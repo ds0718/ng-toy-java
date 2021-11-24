@@ -17,6 +17,8 @@ public class TradeConfig {
 	private String market;
 	private Double ratio;
 	private Double basePrice;
+	private Double unit;
+	private Double decimalPlaces;
 	
 	@Override
 	public String toString() {

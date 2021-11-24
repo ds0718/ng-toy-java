@@ -31,6 +31,12 @@ public class UpbitParams {
 	@JsonProperty("basePrice")
 	private Double basePrice;
 	
+	@JsonProperty("unit")
+	private Double unit;
+	
+	@JsonProperty("decimalPlaces")
+	private Double decimalPlaces;
+	
 	//
 	// 주문 가능 정보
 	/** 마켓 ID, ex)KRW-MVL, KRW-SSX... */

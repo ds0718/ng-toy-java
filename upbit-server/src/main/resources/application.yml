@@ -51,13 +51,15 @@ ehdtjr:
       route-size: 20
    task:
       initial-delay-schedule: 10000
-      do-trade-schedule: 5000 # fixed delay(ms)
+      do-trade-schedule: 60000 # fixed delay(ms)
    trade:
       access-key: ${ACCESS_KEY}
       secret-key: ${SECRET_KEY}
       market: KRW-MVL
-      ratio: 5   # +-5%
+      ratio: 1   # +-5%
       base-price: 20    # KRW
+      unit: 0.1   # 거래 단위, 0 보다 큰 경우 적용
+      decimal-places: 10.0   # 거래 단위, 소수점 N자리 표현 -> .. 0.01(100의 자리까지 표현), 0.1(10의 자리까지 표현), 1.0(1의 자리까지 표현), 10.0(소수점 첫째자리까지 표현), 100.0(소수점 둘째자리까지 표현)..
    
 logging:
    file:

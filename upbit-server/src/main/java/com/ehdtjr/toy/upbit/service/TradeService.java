@@ -43,13 +43,28 @@ public class TradeService {
 		double basePrice = params.getBasePrice();
 		double ratio = params.getRatio();
 		TradeSide side = null;
-		if ((basePrice-tradePrice) > basePrice*ratio/100) { // 매수
+		if ((Double.valueOf(res.getBidAccount().getBalance()) * tradePrice) > res.getMarket().getBid().getMinTotal() // 최소 매수 금액 보다 큰 경우
+				&& (basePrice-tradePrice) > basePrice*ratio/100) { // 매수, 시장가가 작은 경우
 			side =  TradeSide.BID;
 			params.setVolume(res.getBidAccount().getBalance());
 			
-		} else if ((tradePrice-basePrice) > basePrice*ratio/100) { // 매도
+			double unit = params.getUnit();
+			double decimalPlaces = params.getDecimalPlaces();
+			double price = basePrice - (basePrice*ratio/100);
+			if (unit > 0) {
+//				price = Math.ceil((price)*decimalPlaces)/decimalPlaces - unit; // 올림 후 감소
+				price = Math.floor((price)*decimalPlaces)/decimalPlaces + unit; // 버림 후 증가
+				
+			} else {
+				price = Math.round((price)*decimalPlaces)/decimalPlaces; // 반올림
+			}
+			params.setPrice(String.valueOf(price)); // 매수인 경우, 시장가 보다 기대 이율로 거래 요청 -> 손실 최소화 목적
+			
+		} else if ((Double.valueOf(res.getAskAccount().getBalance()) * tradePrice) > res.getMarket().getAsk().getMinTotal() // 최소 매도 금액 보다 큰 경우
+				&& (tradePrice-basePrice) > basePrice*ratio/100) { // 매도, 시장가가 큰 경우
 			side = TradeSide.ASK;
 			params.setVolume(res.getAskAccount().getBalance());
+			params.setPrice(String.valueOf(tradePrice)); // 매도인 경우, 기대 이율 보다 시장가로 거래 요청 -> 이익 최대화 목적
 			
 		} else {
 			// nothing
@@ -58,8 +73,26 @@ public class TradeService {
 		}
 		
 		params.setSide(side.getCode());
-		params.setPrice(String.valueOf(tradePrice));
-		params.setOrdType("limit");
+		params.setOrdType("limit"); // limit : 지정가 주문, price : 시장가 주문(매수), market : 시장가 주문(매도)
 		upClient.postOrders2(params);
+	}
+	
+	public static void main(String[] args) {
+		// KRW-MVL
+		double ratio = 1;
+		double basePrice = 19.5;
+		double decimalPlaces = 0.1; // 10.0 : 소수 첫째자리까지 표현
+		
+		double tradePrice = 20.30;
+		
+		System.out.printf("%f, %f", (tradePrice-basePrice), basePrice*ratio/100);
+		System.out.println();
+		System.out.println("Math.ceil() : " + Math.ceil(basePrice*ratio/100*decimalPlaces)/decimalPlaces); // 올림
+		System.out.println("Math.round() : " + Math.round((basePrice*ratio/100)*decimalPlaces)/decimalPlaces); // 반올림
+		System.out.println("Math.floor() : " + Math.floor(basePrice*ratio/100*decimalPlaces)/decimalPlaces); // 버림
+		System.out.println("Math.ceil(361.1415) : " + Math.ceil((361.1415)*decimalPlaces)/decimalPlaces); // 반올림
+		System.out.println("Math.round(361.1415) : " + Math.round((361.1415)*decimalPlaces)/decimalPlaces); // 반올림
+		System.out.println("Math.round(366.1415) : " + Math.round((366.1415)*decimalPlaces)/decimalPlaces); // 반올림
+		System.out.println("Math.floor(361.1415) : " + Math.floor((361.1415)*decimalPlaces)/decimalPlaces); // 반올림
 	}
 }
