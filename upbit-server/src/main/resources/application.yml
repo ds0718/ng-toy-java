@@ -55,11 +55,12 @@ ehdtjr:
    trade:
       access-key: ${ACCESS_KEY}
       secret-key: ${SECRET_KEY}
-      market: KRW-MVL
-      ratio: 1   # +-5%
-      base-price: 20    # KRW
-      unit: 0.1   # 거래 단위, 0 보다 큰 경우 적용
-      decimal-places: 10.0   # 거래 단위, 소수점 N자리 표현 -> .. 0.01(100의 자리까지 표현), 0.1(10의 자리까지 표현), 1.0(1의 자리까지 표현), 10.0(소수점 첫째자리까지 표현), 100.0(소수점 둘째자리까지 표현)..
+      market: KRW-BORA
+      ratio-up: 3   # +5%
+      ratio-down: 0.5   # -5%
+      base-price: 1610    # KRW
+      unit: 5   # 거래 단위, 0 보다 큰 경우 적용
+      decimal-places: 1.0   # 거래 단위, 소수점 N자리 표현 -> .. 0.01(100의 자리까지 표현), 0.1(10의 자리까지 표현), 1.0(1의 자리까지 표현), 10.0(소수점 첫째자리까지 표현), 100.0(소수점 둘째자리까지 표현)..
    
 logging:
    file:
@@ -102,5 +103,9 @@ upbit:
       #
       # QUOTATION API
       get-ticker: /ticker   # 현재가 정보
-
       
+line:
+   access-token: ${LINE_ACCESS_TOKEN}
+   host-v1: https://notify-api.line.me/api
+   url:
+      post-notify: /notify   # 

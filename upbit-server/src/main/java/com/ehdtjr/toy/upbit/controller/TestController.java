@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ehdtjr.toy.upbit.ext.LineClient;
 import com.ehdtjr.toy.upbit.ext.UpbitClient;
+import com.ehdtjr.toy.upbit.model.dto.LineParams;
 import com.ehdtjr.toy.upbit.model.dto.UpbitParams;
 import com.ehdtjr.toy.upbit.model.dto.UpbitResponse;
 import com.ehdtjr.toy.upbit.model.dto.UpbitResponse2;
@@ -22,6 +24,9 @@ public class TestController {
 
 	@Autowired
 	private UpbitClient upClient;
+	
+	@Autowired
+	private LineClient lineClient;
 	
 	@GetMapping("/accounts")
 	public String getAccounts() throws Exception {
@@ -72,6 +77,18 @@ public class TestController {
 			
 			UpbitResponse2 res = upClient.getTicker(params);
 			log.info(res.toString());
+			
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		
+		return "OK";
+	}
+	
+	@PostMapping("/notify")
+	public String notify(@ModelAttribute LineParams params) throws Exception {
+		try {
+			lineClient.postNotify(params);
 			
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);

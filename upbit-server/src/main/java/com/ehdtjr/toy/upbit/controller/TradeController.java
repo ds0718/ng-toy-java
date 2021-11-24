@@ -32,9 +32,9 @@ public class TradeController {
 			if (StringUtils.isNotBlank(params.getMarket())) {
 				tradeConf.setMarket(params.getMarket());
 			}
-			if (params.getRatio() != null && params.getRatio() > 0) {
-				tradeConf.setRatio(params.getRatio());
-			}
+//			if (params.getRatio() != null && params.getRatio() > 0) {
+//				tradeConf.setRatio(params.getRatio());
+//			}
 			if (params.getBasePrice() != null && params.getBasePrice() > 0) {
 				tradeConf.setBasePrice(params.getBasePrice());
 			}

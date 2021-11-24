@@ -4,17 +4,16 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableAsync;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Configuration
-@EnableAsync
-@ConfigurationProperties(prefix="cj.task")
-@Data
-public class TaskConfig {
-	private int initialDelaySchedule;
-	private int addMessageSchedule;
+@ConfigurationProperties(prefix="line.url")
+@Getter @Setter
+public class LineUrlConfig {
+	
+	private String postNotify;
 	
 	@Override
 	public String toString() {

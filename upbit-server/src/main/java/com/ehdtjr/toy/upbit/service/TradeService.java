@@ -3,8 +3,10 @@ package com.ehdtjr.toy.upbit.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ehdtjr.toy.upbit.ext.LineClient;
 import com.ehdtjr.toy.upbit.ext.UpbitClient;
 import com.ehdtjr.toy.upbit.model.TradeSide;
+import com.ehdtjr.toy.upbit.model.dto.LineParams;
 import com.ehdtjr.toy.upbit.model.dto.UpbitParams;
 import com.ehdtjr.toy.upbit.model.dto.UpbitResponse;
 import com.ehdtjr.toy.upbit.model.dto.UpbitResponse2;
@@ -17,6 +19,9 @@ public class TradeService {
 	
 	@Autowired
 	private UpbitClient upClient;
+	
+	@Autowired
+	private LineClient lineClient;
 	
 	public void trade(UpbitParams params) {
 		try {
@@ -41,16 +46,17 @@ public class TradeService {
 		UpbitResponse2 res2 = upClient.getTicker(params); 
 		double tradePrice = res2.getTradePrice(); // 시세
 		double basePrice = params.getBasePrice();
-		double ratio = params.getRatio();
+		double ratioUp = params.getRatioUp();
+		double ratioDown = params.getRatioDown();
 		TradeSide side = null;
 		if ((Double.valueOf(res.getBidAccount().getBalance()) * tradePrice) > res.getMarket().getBid().getMinTotal() // 최소 매수 금액 보다 큰 경우
-				&& (basePrice-tradePrice) > basePrice*ratio/100) { // 매수, 시장가가 작은 경우
+				&& (basePrice-tradePrice) > basePrice*ratioDown/100) { // 매수, 시장가가 작은 경우
 			side =  TradeSide.BID;
 			params.setVolume(res.getBidAccount().getBalance());
 			
 			double unit = params.getUnit();
 			double decimalPlaces = params.getDecimalPlaces();
-			double price = basePrice - (basePrice*ratio/100);
+			double price = basePrice - (basePrice*ratioDown/100);
 			if (unit > 0) {
 //				price = Math.ceil((price)*decimalPlaces)/decimalPlaces - unit; // 올림 후 감소
 				price = Math.floor((price)*decimalPlaces)/decimalPlaces + unit; // 버림 후 증가
@@ -61,7 +67,7 @@ public class TradeService {
 			params.setPrice(String.valueOf(price)); // 매수인 경우, 시장가 보다 기대 이율로 거래 요청 -> 손실 최소화 목적
 			
 		} else if ((Double.valueOf(res.getAskAccount().getBalance()) * tradePrice) > res.getMarket().getAsk().getMinTotal() // 최소 매도 금액 보다 큰 경우
-				&& (tradePrice-basePrice) > basePrice*ratio/100) { // 매도, 시장가가 큰 경우
+				&& (tradePrice-basePrice) > basePrice*ratioUp/100) { // 매도, 시장가가 큰 경우
 			side = TradeSide.ASK;
 			params.setVolume(res.getAskAccount().getBalance());
 			params.setPrice(String.valueOf(tradePrice)); // 매도인 경우, 기대 이율 보다 시장가로 거래 요청 -> 이익 최대화 목적
@@ -74,7 +80,9 @@ public class TradeService {
 		
 		params.setSide(side.getCode());
 		params.setOrdType("limit"); // limit : 지정가 주문, price : 시장가 주문(매수), market : 시장가 주문(매도)
-		upClient.postOrders2(params);
+		String result = upClient.postOrders2(params);
+		
+		lineClient.postNotify(LineParams.of("거래 결과 : " + result)); // 거래 결과 알림
 	}
 	
 	public static void main(String[] args) {

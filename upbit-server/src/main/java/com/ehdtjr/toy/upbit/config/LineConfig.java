@@ -9,17 +9,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Configuration
-@ConfigurationProperties(prefix="ehdtjr.trade")
+@ConfigurationProperties(prefix="line")
 @Getter @Setter
-public class TradeConfig {
-	private String accessKey;
-	private String secretKey;
-	private String market;
-	private Double ratioUp;
-	private Double ratioDown;
-	private Double basePrice;
-	private Double unit;
-	private Double decimalPlaces;
+public class LineConfig {
+	private String hostV1;
+	private String accessToken;
 	
 	@Override
 	public String toString() {

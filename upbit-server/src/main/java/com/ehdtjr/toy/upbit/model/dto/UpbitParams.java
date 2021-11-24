@@ -25,8 +25,11 @@ public class UpbitParams {
 	@JsonProperty("secretKey")
 	private String secretKey;
 	
-	@JsonProperty("ratio")
-	private Double ratio;
+	@JsonProperty("ratioUp")
+	private Double ratioUp;
+	
+	@JsonProperty("ratioDown")
+	private Double ratioDown;
 	
 	@JsonProperty("basePrice")
 	private Double basePrice;

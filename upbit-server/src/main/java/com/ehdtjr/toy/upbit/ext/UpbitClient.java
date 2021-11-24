@@ -1,6 +1,5 @@
 package com.ehdtjr.toy.upbit.ext;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -9,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -122,7 +122,7 @@ public class UpbitClient {
 				new TypeToken<UpbitResponse>() {}.getType());
 	}
 
-	public void postOrders2(UpbitParams params) throws Exception {
+	public String postOrders2(UpbitParams params) throws Exception {
 //		String accessKey = System.getenv("UPBIT_OPEN_API_ACCESS_KEY");
 //		String secretKey = System.getenv("UPBIT_OPEN_API_SECRET_KEY");
 //		String serverUrl = System.getenv("UPBIT_OPEN_API_SERVER_URL");
@@ -165,9 +165,13 @@ public class UpbitClient {
 			HttpResponse response = client.execute(request);
 			HttpEntity entity = response.getEntity();
 
-			log.info(EntityUtils.toString(entity, "UTF-8"));
-		} catch (IOException e) {
+			String responseText = EntityUtils.toString(entity, "UTF-8");
+			log.info(responseText);
+			return responseText;
+			
+		} catch (Exception e) {
 			e.printStackTrace();
+			return "failed to trade. " + ExceptionUtils.getRootCauseMessage(e);
 		}
 	}
 	
