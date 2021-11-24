@@ -1,5 +1,8 @@
 package com.ehdtjr.toy.upbit.service;
 
+import java.util.Calendar;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,9 +28,26 @@ public class TradeService {
 	
 	public void trade(UpbitParams params) {
 		try {
+			isRunning();
 			doTrade(params);
 		} catch (Exception e) {
 			e.printStackTrace();
+			try {
+				lineClient.postNotify(LineParams.of("처리 에러. " + ExceptionUtils.getRootCauseMessage(e)));
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+	
+	private void isRunning() throws Exception {
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(System.currentTimeMillis());
+		int min = cal.get(Calendar.MINUTE);
+		
+		// 30분 마다 헬스 체크 알림
+		if (min / 30 == 0) {
+			lineClient.postNotify(LineParams.of("헬스 체크..."));
 		}
 	}
 	
