@@ -46,7 +46,7 @@ public class TradeService {
 		int min = cal.get(Calendar.MINUTE);
 		
 		// 30분 마다 헬스 체크 알림
-		if (min / 30 == 0) {
+		if (min % 30 == 0) {
 			lineClient.postNotify(LineParams.of("헬스 체크..."));
 		}
 	}
