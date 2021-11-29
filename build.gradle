@@ -55,17 +55,17 @@ subprojects {
 		testImplementation 'org.springframework.boot:spring-boot-starter-test'*/
 		
 		// apache commons
-		compile 'commons-io:commons-io:2.7'
-		compile 'org.apache.commons:commons-collections4:4.4'
-		compile 'org.apache.commons:commons-lang3:3.10'
+		implementation 'commons-io:commons-io:2.7'
+		implementation 'org.apache.commons:commons-collections4:4.4'
+		implementation 'org.apache.commons:commons-lang3:3.10'
 		
 		// apache httpclient
 		//compile 'org.apache.httpcomponents.client5:httpclient5:5.0.1'
-		compile 'org.apache.httpcomponents:httpclient:4.5.12'
+		implementation 'org.apache.httpcomponents:httpclient:4.5.12'
 		
 		// json
 		//compile 'com.googlecode.json-simple:json-simple:1.1.1'
-		compile "com.google.code.gson:gson:2.8.6"
+		implementation "com.google.code.gson:gson:2.8.6"
 	}
 	
 	// sub-project 등록시 디렉토리가 존재하지 않으면 자동생성
@@ -98,7 +98,7 @@ project(':common-service') {
 	jar { enabled = true }
 
 	dependencies {
-		compile project(path: ':common-core', configuration: 'default')
+		implementation project(path: ':common-core', configuration: 'default')
 	}
 }
 
@@ -108,6 +108,6 @@ project(':upbit-server') {
 
 	dependencies {
 		implementation project(path: ':common-service', configuration: 'default')
-		compile project(path: ':common-core', configuration: 'default')
+		implementation project(path: ':common-core', configuration: 'default')
 	}
 }
