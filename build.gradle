@@ -33,7 +33,7 @@ subprojects {
 	apply plugin: "java"
 	apply plugin: "org.springframework.boot"
 	apply plugin: "io.spring.dependency-management"
-	apply plugin: "com.ewerk.gradle.plugins.querydsl"
+	//apply plugin: "com.ewerk.gradle.plugins.querydsl"
 	
 	repositories {
 		mavenCentral()
@@ -103,8 +103,8 @@ project(':common-service') {
 }
 
 project(':upbit-server') {
-	bootJar { enabled = false }
-	jar { enabled = true }
+	bootJar { enabled = true }
+	jar { enabled = false }
 
 	dependencies {
 		implementation project(path: ':common-service', configuration: 'default')
