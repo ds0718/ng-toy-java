@@ -28,7 +28,7 @@ public class TradeService {
 	
 	public void trade(UpbitParams params) {
 		try {
-			isRunning();
+			isRunning(params);
 			doTrade(params);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -40,14 +40,14 @@ public class TradeService {
 		}
 	}
 	
-	private void isRunning() throws Exception {
+	private void isRunning(UpbitParams params) throws Exception {
 		Calendar cal = Calendar.getInstance();
 		cal.setTimeInMillis(System.currentTimeMillis());
 		int min = cal.get(Calendar.MINUTE);
 		
 		// 30분 마다 헬스 체크 알림
 		if (min % 30 == 0) {
-			lineClient.postNotify(LineParams.of("헬스 체크..."));
+			lineClient.postNotify(LineParams.of("헬스 체크..." + params.getTradeInfo()));
 		}
 	}
 	
@@ -65,14 +65,17 @@ public class TradeService {
 		
 		UpbitResponse2 res2 = upClient.getTicker(params); 
 		double tradePrice = res2.getTradePrice(); // 시세
+		
+		double bidBalance = Double.valueOf(res.getBidAccount().getBalance()); // 매수 가능 금액(KRW)
+		
 		double basePrice = params.getBasePrice();
 		double ratioUp = params.getRatioUp();
 		double ratioDown = params.getRatioDown();
 		TradeSide side = null;
-		if ((Double.valueOf(res.getBidAccount().getBalance()) * tradePrice) > res.getMarket().getBid().getMinTotal() // 최소 매수 금액 보다 큰 경우
-				&& (basePrice-tradePrice) > basePrice*ratioDown/100) { // 매수, 시장가가 작은 경우
+//		if ((Double.valueOf(res.getBidAccount().getBalance()) * tradePrice) > res.getMarket().getBid().getMinTotal() // 최소 매수 금액 보다 큰 경우
+		if ( bidBalance > res.getMarket().getBid().getMinTotal() // 최소 매수 금액 보다 큰 경우
+				&& (basePrice-tradePrice) >= basePrice*ratioDown/100) { // 매수, 시장가가 작은 경우
 			side =  TradeSide.BID;
-			params.setVolume(res.getBidAccount().getBalance());
 			
 			double unit = params.getUnit();
 			double decimalPlaces = params.getDecimalPlaces();
@@ -84,10 +87,13 @@ public class TradeService {
 			} else {
 				price = Math.round((price)*decimalPlaces)/decimalPlaces; // 반올림
 			}
-			params.setPrice(String.valueOf(price)); // 매수인 경우, 시장가 보다 기대 이율로 거래 요청 -> 손실 최소화 목적
+//			params.setPrice(String.valueOf(price)); // 매수인 경우, 시장가 보다 기대 이율로 거래 요청 -> 손실 최소화 목적
+			params.setPrice(String.valueOf(tradePrice)); // 매수인 경우, 무조건 낮은 가격으로 매수
+//			params.setVolume(res.getBidAccount().getBalance());
+			params.setVolume(String.valueOf((int)((bidBalance*(1 - Double.valueOf(res.getBidFee())) / tradePrice)))); // 매수 수수료 제외 거래 가능한 수량 계산
 			
 		} else if ((Double.valueOf(res.getAskAccount().getBalance()) * tradePrice) > res.getMarket().getAsk().getMinTotal() // 최소 매도 금액 보다 큰 경우
-				&& (tradePrice-basePrice) > basePrice*ratioUp/100) { // 매도, 시장가가 큰 경우
+				&& (tradePrice-basePrice) >= basePrice*ratioUp/100) { // 매도, 시장가가 큰 경우
 			side = TradeSide.ASK;
 			params.setVolume(res.getAskAccount().getBalance());
 			params.setPrice(String.valueOf(tradePrice)); // 매도인 경우, 기대 이율 보다 시장가로 거래 요청 -> 이익 최대화 목적
@@ -100,9 +106,11 @@ public class TradeService {
 		
 		params.setSide(side.getCode());
 		params.setOrdType("limit"); // limit : 지정가 주문, price : 시장가 주문(매수), market : 시장가 주문(매도)
+
 		String result = upClient.postOrders2(params);
-		
 		lineClient.postNotify(LineParams.of("거래 결과 : " + result)); // 거래 결과 알림
+//		UpbitResponse result = upClient.postOrders(params);
+//		lineClient.postNotify(LineParams.of("거래 결과 : " + result)); // 거래 결과 알림
 	}
 	
 	public static void main(String[] args) {

@@ -55,12 +55,12 @@ ehdtjr:
    trade:
       access-key: ${ACCESS_KEY}
       secret-key: ${SECRET_KEY}
-      market: KRW-BORA
-      ratio-up: 3   # +5%
-      ratio-down: 0.5   # -5%
-      base-price: 1610    # KRW
+      market: KRW-BAT
+      ratio-up: 2.2   # +5%
+      ratio-down: 0   # -5%
+      base-price: 2025    # KRW
       unit: 5   # 거래 단위, 0 보다 큰 경우 적용
-      decimal-places: 1.0   # 거래 단위, 소수점 N자리 표현 -> .. 0.01(100의 자리까지 표현), 0.1(10의 자리까지 표현), 1.0(1의 자리까지 표현), 10.0(소수점 첫째자리까지 표현), 100.0(소수점 둘째자리까지 표현)..
+      decimal-places: 0.1   # 거래 단위, 소수점 N자리 표현 -> .. 0.01(100의 자리까지 표현), 0.1(10의 자리까지 표현), 1.0(1의 자리까지 표현), 10.0(소수점 첫째자리까지 표현), 100.0(소수점 둘째자리까지 표현)..
    
 logging:
    file:

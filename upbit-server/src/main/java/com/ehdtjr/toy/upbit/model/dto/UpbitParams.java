@@ -112,6 +112,17 @@ public class UpbitParams {
 		return to;
 	}
 	
+	public String getTradeInfo() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("market(").append(market).append(")");
+		sb.append(", ratioUp(").append(ratioUp).append(")");
+		sb.append(", ratioDown(").append(ratioDown).append(")");
+		sb.append(", basePrice(").append(basePrice).append(")");
+//		sb.append(", unit(").append(unit).append(")");
+//		sb.append(", decimalPlaces(").append(decimalPlaces).append(")");
+		return sb.toString();
+	}
+	
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);

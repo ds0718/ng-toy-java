@@ -1,6 +1,7 @@
 package com.ehdtjr.toy.upbit.ext;
 
 import java.math.BigInteger;
+import java.net.URI;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +22,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.auth0.jwt.JWT;
@@ -109,16 +112,21 @@ public class UpbitClient {
 	 */
 	public UpbitResponse postOrders(UpbitParams params) throws Exception {
 		StringBuilder url = new StringBuilder(upConf.getHostV1());
-		url.append(upUrlConf.getGetOrdersChance());
+		url.append(upUrlConf.getGetOrders());
 
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(url.toString())
-				.queryParam("market", params.getMarket());
+		MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+		paramMap.add("market", params.getMarket());
+		paramMap.add("side", params.getSide());
+		paramMap.add("volume", params.getVolume());
+		paramMap.add("price", params.getPrice());
+		paramMap.add("ord_type", params.getOrdType());
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-		headers.set(HttpHeaders.AUTHORIZATION, JwtUtil.getToken(uriBuilder.build().getQuery()));
+		headers.set(HttpHeaders.AUTHORIZATION, 
+				JwtUtil.getToken(params.getAccessKey(), params.getSecretKey(), paramMap));
 
-		return (UpbitResponse)requestClient.request(HttpMethod.POST, uriBuilder.build().toUri(), params, headers, 
+		return (UpbitResponse)requestClient.request(HttpMethod.POST, new URI(url.toString()), params, paramMap, headers, 
 				new TypeToken<UpbitResponse>() {}.getType());
 	}
 
@@ -142,12 +150,16 @@ public class UpbitClient {
 		}
 
 		String queryString = String.join("&", queryElements.toArray(new String[0]));
+		log.info("queryString : " + queryString);
 
 		MessageDigest md = MessageDigest.getInstance("SHA-512");
 		md.update(queryString.getBytes("UTF-8"));
 
 		String queryHash = String.format("%0128x", new BigInteger(1, md.digest()));
-
+		log.info("queryHash : " + queryHash);
+		
+		log.info("accessKey : " + params.getSecretKey());
+		log.info("secretKey : " + params.getAccessKey());
 		Algorithm algorithm = Algorithm.HMAC256(params.getSecretKey());
 		String jwtToken = JWT.create().withClaim("access_key", params.getAccessKey())
 				.withClaim("nonce", UUID.randomUUID().toString()).withClaim("query_hash", queryHash)
@@ -161,12 +173,14 @@ public class UpbitClient {
 			request.setHeader("Content-Type", "application/json");
 			request.addHeader("Authorization", authenticationToken);
 			request.setEntity(new StringEntity(new Gson().toJson(paramsMap)));
+			
+			log.info("request : {}", EntityUtils.toString(request.getEntity(), "UTF-8"));
 
 			HttpResponse response = client.execute(request);
 			HttpEntity entity = response.getEntity();
 
 			String responseText = EntityUtils.toString(entity, "UTF-8");
-			log.info(responseText);
+			log.info("response : {}", responseText);
 			return responseText;
 			
 		} catch (Exception e) {
